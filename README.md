@@ -1,25 +1,25 @@
 # NLP-Backend-project
 What Is FastAPI?
 ----------------
-FastAPI is a modern, high-performance web framework for building APIs with Python based on standard type hints. It has the following key features:
-Fast to run: It offers very high performance, on par with NodeJS and Go, thanks to Starlette and pydantic.
-Fast to code: It allows for significant increases in development speed.
-Reduced number of bugs: It reduces the possibility for human-induced errors.
-Intuitive: It offers great editor support, with completion everywhere and less time debugging.
-Straightforward: It’s designed to be uncomplicated to use and learn, so you can spend less time reading documentation.
-Short: It minimizes code duplication.
-Robust: It provides production-ready code with automatic interactive documentation.
-Standards-based: It’s based on the open standards for APIs, OpenAPI and JSON Schema.
+FastAPI is a modern, high-performance web framework for building APIs with Python based on standard type hints. It has the following key features:\n
+1.Fast to run: It offers very high performance, on par with NodeJS and Go, thanks to Starlette and pydantic.\n
+2.Fast to code: It allows for significant increases in development speed.\n
+3.Reduced number of bugs: It reduces the possibility for human-induced errors.\n
+4.Intuitive: It offers great editor support, with completion everywhere and less time debugging.\n
+5.Straightforward: It’s designed to be uncomplicated to use and learn, so you can spend less time reading documentation.\n
+6.Short: It minimizes code duplication.\n
+7.Robust: It provides production-ready code with automatic interactive documentation.\n
+8.Standards-based: It’s based on the open standards for APIs, OpenAPI and JSON Schema.
 
-prerequisites and installation procedure:
------------------------------------------
+**prerequisites and installation procedure:**
 1. python should be installed
 2. fastapi and uvicorn should be installed.
- pip install fastapi
  
- pip install "uvicorn"
+**** pip install fastapi****
  
-Example for fastapi:
+ **pip install "uvicorn"**
+ 
+**Example for fastapi:**
 
 from typing import Union
 from fastapi import FastAPI
@@ -31,7 +31,7 @@ def read_root():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
  Command to run fastapi
-** uvicorn main:app --reload**
+**** uvicorn main:app --reload**
  
 
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
@@ -42,15 +42,14 @@ INFO:     Application startup complete.
 
 We can test our api at  http://localhost:8000
 
-FastApi in Docker:
-------------------
+**FastApi in Docker:**
 To use fastapi in docker we need Dockerfile and requirements.txt and src files as shown in repo.
 *Source files should contain python file for nlp model with fastapi.
- FastAPI URL: @app.get("/filedata/{start_date}&{end_date}")
+ **FastAPI URL: @app.get("/filedata/{start_date}&{end_date}")**
 
 **Building Docker image:** 
 Go to path where dockerfile is locating.
-**docker build -t <image-name> .**
+docker build -t <image-name> .
 
 Creating Docker container from docker image:
  
