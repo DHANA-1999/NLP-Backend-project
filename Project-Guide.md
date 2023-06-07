@@ -84,7 +84,9 @@ Go to path where dockerfile is locating.
  `http://<server IP ADDRESS >:8000/filedata/02-06-2023&04-06-2023**`
  
  `Here:`
+ 
  filedata - end point for fastapi
+ 
  02-06-2023&04-06-2023 -  query parameters (start & end dates)
  
  
