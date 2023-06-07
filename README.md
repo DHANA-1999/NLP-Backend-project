@@ -16,10 +16,11 @@ prerequisites and installation procedure:
 1. python should be installed
 2. fastapi and uvicorn should be installed.
  pip install fastapi
+ 
  pip install "uvicorn"
  
 Example for fastapi:
--------------------
+
 from typing import Union
 from fastapi import FastAPI
 app = FastAPI()
@@ -30,8 +31,8 @@ def read_root():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
  Command to run fastapi
- uvicorn main:app --reload
- --------------------------
+** uvicorn main:app --reload**
+ 
 
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 INFO:     Started reloader process [28720]
@@ -40,4 +41,26 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 
 We can test our api at  http://localhost:8000
+
+FastApi in Docker:
+------------------
+To use fastapi in docker we need Dockerfile and requirements.txt and src files as shown in repo.
+*Source files should contain python file for nlp model with fastapi.
+ FastAPI URL: @app.get("/filedata/{start_date}&{end_date}")
+
+**Building Docker image:** 
+Go to path where dockerfile is locating.
+**docker build -t <image-name> .**
+
+Creating Docker container from docker image:
+ 
+ **docker run --name=<container name> -d -p 8000:8000 <image-name>**
+ 
+ Accessing application using Fastapi:
+ **http://<server IP ADDRESS >:8000/filedata/02-06-2023&04-06-2023**
+ 
+ Here:
+ filedata - end point for fastapi
+ 02-06-2023&04-06-2023 -  query parameters (start & end dates)
+ 
  
