@@ -11,15 +11,15 @@ FastAPI is a modern, high-performance web framework for building APIs with Pytho
 7.Robust: It provides production-ready code with automatic interactive documentation.
 8.Standards-based: It’s based on the open standards for APIs, OpenAPI and JSON Schema.
 
-**prerequisites and installation procedure:**
+prerequisites and installation procedure:
 1. python should be installed
 2. fastapi and uvicorn should be installed.
  
  pip install fastapi
  
- **pip install "uvicorn"**
+ pip install "uvicorn"
  
-**Example for fastapi:**
+Example for fastapi:
 
 from typing import Union
 from fastapi import FastAPI
@@ -31,7 +31,7 @@ def read_root():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
  Command to run fastapi
-**** uvicorn main:app --reload**
+uvicorn main:app --reload
  
 
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
