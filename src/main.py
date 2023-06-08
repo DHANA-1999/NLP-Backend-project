@@ -3,15 +3,9 @@ from bs4 import *
 import pandas as pd
 from fastapi import FastAPI
 import numpy as np
-#import pyspark.pandas
 import seaborn as sns
-#from pyspark.sql import SparkSession
-#import spark
 import matplotlib.pyplot as plt
-#import pyarrow
 import nltk
-#from newspaper import Article, ArticleException
-#%matplotlib inline
 from wordcloud import WordCloud
 import os
 from spacy import displacy
@@ -27,8 +21,8 @@ nlp = spacy.load('en_core_web_sm')
 
 origins = [
         "http://localhost:4200",
-        "http://44.202.124.251:4200",
-         "http://3.87.210.60:8000",
+        "http://44.204.61.106:4200",
+         "http://54.165.122.233:8000",
 ]
 app = FastAPI()
 
@@ -139,24 +133,45 @@ def get_text(url):
     clean_text= ''.join([c for c in clean_text if c != "'"])
     return clean_text
 
-
-def find_Sentiment(val):
-    if val<=0.1 and val>-0.1:
-        return 'Neutral'
-    elif val>0.1:
-        return 'Positive'
+def get_sentiment(url):
+  try:
+    r = requests.get(url, verify=False)
+    r.raise_for_status()  # Check for any request errors
+    htmlcontent = r.content
+    soup = BeautifulSoup(htmlcontent, 'html.parser')
+    text = soup.get_text()
+    df = text.replace("\n", " ")
+    textblob_sentiment = []
+    sentence = []
+    tokens = nlp(df)
+    for sent in tokens.sents:
+      sentence.append(sent.text.strip())
+    person = None
+    location = None
+    for ent in tokens.ents:
+      if ent.label_ == "PERSON" and person is None:
+        person = ent.text
+      elif (ent.label_ == "GPE" or ent.label_ == "LOC") and location is None:
+        location = ent.text
+      if person is not None and location is not None:
+        break
+    for s in sentence:
+      txt = TextBlob(s)
+      a = txt.sentiment.polarity
+      b = txt.sentiment.subjectivity
+      textblob_sentiment.append([s, a, b])
+    df_text = pd.DataFrame(textblob_sentiment, columns=['sentence', 'polarity', 'subjectivity'])
+    mean_polarity = df_text['polarity'].mean()
+    mean_subjectivity = df_text['subjectivity'].mean()
+    if mean_polarity > 0:
+      status = 'positive'
+    elif mean_polarity < 0:
+      status = 'negative'
     else:
-        return 'Negative'
-
-def newsAnalysis(clean_text):
-    sent = []
-    sentVal = []
-    analysis = TextBlob(clean_text)
-    sentiment = find_Sentiment(analysis.sentiment.polarity)
-    qq = analysis.sentiment.polarity
-    sentVal.append(qq)
-    sent.append(sentiment)
-    return sent, sentVal
+      status = 'Neutral'
+    return [url, mean_polarity, mean_subjectivity, person, location, status]
+  except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
+    return [None, None, None, None, None, None]
 
 
 @app.get("/filedata/{start_date}&{end_date}")
@@ -169,44 +184,14 @@ async def root(start_date,end_date):
                         print("saving file" + "->"+ name)
                         append_existing_file(df,new_file)
                 df1=pd.read_csv(new_file,header=None)
-                list_sentiment=[]
-                list2 = []
-                status= []
-                url = df1[60][3]
-                r = requests.get(url,verify=False)
-                htmlcontent = r.content
-                soup = BeautifulSoup(htmlcontent)
-                text = soup.get_text()
-                df = text.replace("\n", " ")
-                textblob_sentiment=[]
-                sentence=[]
-                tokens = nlp(df)
-                for sent in tokens.sents:
-                    sentence.append((sent.text.strip()))
-                person = None
-                location = None
-                for ent in tokens.ents:
-                    if ent.label_ == "PERSON" and person is None:
-                        person = ent.text
-                    elif (ent.label_ == "GPE" or ent.label_ == "LOC") and location is None:
-                        location = ent.text
-                    if person is not None and location is not None:
-                        break
-                list2.append([person,location])
-                for s in sentence:
-                    txt= TextBlob(s)
-                    a= txt.sentiment.polarity
-                    b= txt.sentiment.subjectivity
-                    textblob_sentiment.append([s,a,b])
-                df_text = pd.DataFrame(textblob_sentiment,columns=['sentence','polarity','subjectivity'])
-                mean_polarity = df_text['polarity'].mean()
-                mean_subjectivity = df_text['subjectivity'].mean()
-                if mean_polarity >0:
-                    status.append('positive')
-                elif mean_polarity <0:
-                    status.append('negative')
-                else:
-                    status.append('Neutral')
-                list_sentiment.append([mean_polarity,mean_subjectivity,person,location,status])
-                return list_sentiment
-
+                df2=df1.head(40)
+                list_sentiment = []
+                for i in range(0, len(df2[60]), 20):
+                    urls = df2[60].iloc[i:i + 20]
+                    for url in urls:
+                        list_sentiment.append(get_sentiment(url))
+                list3 = pd.DataFrame(list_sentiment, columns=['url', 'mean_polarity', 'mean_subjectivity', 'person', 'location', 'status'])
+                list3=list3.sort_values('mean_polarity', ascending=False)
+                list3.drop_duplicates('url', inplace=True)
+                list3.dropna(how='any', inplace=True)
+                return list3.head(3).set_index([pd.Index([1, 2, 3])])
